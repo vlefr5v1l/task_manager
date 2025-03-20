@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Enum, Text
-from datetime import datetime
+from datetime import datetime, timezone
 from src.db.base import Base
 import enum
 
@@ -30,11 +30,9 @@ class Task(Base):
     created_by_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     assigned_to_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"))
-    deadline = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # Отношения перенесены в relationships.py
+    deadline = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
 
 class Comment(Base):

@@ -26,7 +26,10 @@ class UserInDBBase(UserBase):
         from_attributes = True
 
 class User(UserInDBBase):
-    pass
+    id: int
+
+    class Config:
+        from_attributes = True
 
 class UserInDB(UserInDBBase):
     password_hash: str

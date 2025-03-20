@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -36,6 +36,11 @@ async def create(db: AsyncSession, *, obj_in: UserCreate) -> User:
     return db_obj
 
 
+async def get_multi(db: AsyncSession, *, skip: int = 0, limit: int = 100) -> List[User]:
+    result = await db.execute(select(User).offset(skip).limit(limit))
+    return result.scalars().all()
+
+
 async def update(db: AsyncSession, *, db_obj: User, obj_in: UserUpdate) -> User:
     obj_data = obj_in.dict(exclude_unset=True)
     if obj_data.get("password"):
@@ -50,10 +55,15 @@ async def update(db: AsyncSession, *, db_obj: User, obj_in: UserUpdate) -> User:
     return db_obj
 
 
-async def authenticate(db: AsyncSession, *, email: str, password: str) -> Optional[User]:
-    user = await get_by_email(db, email=email)
+async def authenticate(db: AsyncSession, *, username_or_email: str, password: str) -> Optional[User]:
+    """
+    Проверяет пользователя по username или email и паролю
+    """
+    user = await get_by_email(db, email=username_or_email)
     if not user:
+        user = await get_by_username(db, username=username_or_email)
+
+    if not user or not verify_password(password, user.password_hash):
         return None
-    if not verify_password(password, user.password_hash):
-        return None
+
     return user

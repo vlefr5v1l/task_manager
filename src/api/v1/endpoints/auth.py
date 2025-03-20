@@ -18,18 +18,19 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login
 
 @router.post("/login", response_model=Token)
 async def login_access_token(
-        db: AsyncSession = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
+    db: AsyncSession = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ):
     """
-    OAuth2 совместимый токен, логин для получения access token
+    OAuth2 совместимый токен, логин для получения access token.
+    Принимает username (который может быть email или username) и пароль.
     """
     user = await user_service.authenticate(
-        db, email=form_data.username, password=form_data.password
+        db, username_or_email=form_data.username, password=form_data.password
     )
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Incorrect username/email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     elif not user.is_active:
