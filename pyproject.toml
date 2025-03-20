@@ -8,13 +8,22 @@ dependencies = [
     "alembic>=1.15.1",
     "asyncpg>=0.30.0",
     "fastapi>=0.115.11",
+    "fastapi-jwt-auth>=0.5.0",
+    "httpx>=0.28.1",
     "passlib>=1.7.4",
     "psycopg2-binary>=2.9.10",
     "pydantic-settings>=2.8.1",
     "pydantic[email]>=2.10.6",
     "pytest>=8.3.5",
+    "pytest-asyncio>=0.25.3",
     "python-jose[cryptography]>=3.4.0",
     "python-multipart>=0.0.20",
     "sqlalchemy>=2.0.39",
     "uvicorn>=0.34.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+asyncio_mode = "auto"
