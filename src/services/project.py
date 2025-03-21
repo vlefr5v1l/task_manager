@@ -17,28 +17,20 @@ async def get_multi(db: AsyncSession, skip: int = 0, limit: int = 100) -> List[P
     return result.scalars().all()
 
 
-async def get_by_group(
-    db: AsyncSession, group_id: int, skip: int = 0, limit: int = 100
-) -> List[Project]:
-    result = await db.execute(
-        select(Project).where(Project.group_id == group_id).offset(skip).limit(limit)
-    )
+async def get_by_group(db: AsyncSession, group_id: int, skip: int = 0, limit: int = 100) -> List[Project]:
+    result = await db.execute(select(Project).where(Project.group_id == group_id).offset(skip).limit(limit))
     return result.scalars().all()
 
 
 async def create(db: AsyncSession, *, obj_in: ProjectCreate) -> Project:
-    db_obj = Project(
-        name=obj_in.name, description=obj_in.description, group_id=obj_in.group_id
-    )
+    db_obj = Project(name=obj_in.name, description=obj_in.description, group_id=obj_in.group_id)
     db.add(db_obj)
     await db.commit()
     await db.refresh(db_obj)
     return db_obj
 
 
-async def update(
-    db: AsyncSession, *, db_obj: Project, obj_in: ProjectUpdate
-) -> Project:
+async def update(db: AsyncSession, *, db_obj: Project, obj_in: ProjectUpdate) -> Project:
     obj_data = obj_in.dict(exclude_unset=True)
 
     for field, value in obj_data.items():

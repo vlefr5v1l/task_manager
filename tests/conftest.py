@@ -17,9 +17,7 @@ TEST_DATABASE_URL = f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.PO
 
 # Создаем тестовый движок
 test_engine = create_async_engine(TEST_DATABASE_URL, poolclass=NullPool)
-TestingSessionLocal = sessionmaker(
-    test_engine, class_=AsyncSession, expire_on_commit=False
-)
+TestingSessionLocal = sessionmaker(test_engine, class_=AsyncSession, expire_on_commit=False)
 
 
 # Переопределяем зависимость для получения БД
@@ -56,9 +54,7 @@ async def test_db():
         conn = await asyncpg.connect(postgres_url)
 
         # Проверяем существование тестовой БД
-        db_exists = await conn.fetchval(
-            "SELECT 1 FROM pg_database WHERE datname = $1", "test_task_management"
-        )
+        db_exists = await conn.fetchval("SELECT 1 FROM pg_database WHERE datname = $1", "test_task_management")
 
         # Если БД не существует, создаем её
         if not db_exists:

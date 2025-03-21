@@ -103,9 +103,7 @@ async def delete(db: AsyncSession, *, id: int) -> bool:
     return result.rowcount > 0
 
 
-async def change_status(
-    db: AsyncSession, *, task_id: int, status: TaskStatus
-) -> Optional[Task]:
+async def change_status(db: AsyncSession, *, task_id: int, status: TaskStatus) -> Optional[Task]:
     task = await get(db, id=task_id)
     if not task:
         return None
@@ -120,9 +118,7 @@ async def change_status(
 
 
 # Функции для комментариев
-async def create_comment(
-    db: AsyncSession, *, task_id: int, user_id: int, obj_in: CommentCreate
-) -> Comment:
+async def create_comment(db: AsyncSession, *, task_id: int, user_id: int, obj_in: CommentCreate) -> Comment:
     db_obj = Comment(task_id=task_id, user_id=user_id, content=obj_in.content)
     db.add(db_obj)
     await db.commit()
@@ -131,9 +127,7 @@ async def create_comment(
 
 
 async def get_task_comments(db: AsyncSession, *, task_id: int) -> List[Comment]:
-    result = await db.execute(
-        select(Comment).where(Comment.task_id == task_id).order_by(Comment.created_at)
-    )
+    result = await db.execute(select(Comment).where(Comment.task_id == task_id).order_by(Comment.created_at))
     return result.scalars().all()
 
 

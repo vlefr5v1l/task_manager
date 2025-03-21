@@ -11,9 +11,7 @@ class TaskBase(BaseModel):
     priority: TaskPriority = TaskPriority.MEDIUM
     project_id: int
     assigned_to_id: Optional[int] = None
-    deadline: Optional[datetime] = Field(
-        None, description="Срок выполнения задачи (UTC)"
-    )
+    deadline: Optional[datetime] = Field(None, description="Срок выполнения задачи (UTC)")
 
 
 class TaskCreate(TaskBase):

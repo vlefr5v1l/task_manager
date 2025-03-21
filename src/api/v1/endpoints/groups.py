@@ -22,9 +22,7 @@ router = APIRouter()
 # Проверка прав администратора
 def check_admin_rights(current_user: User):
     if current_user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Недостаточно прав"
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Недостаточно прав")
 
 
 # Проверка прав тимлида в группе
@@ -34,9 +32,7 @@ async def check_team_lead_rights(db: AsyncSession, group_id: int, current_user: 
         return
 
     # Проверяем, является ли пользователь тимлидом в данной группе
-    role = await group_service.get_user_role_in_group(
-        db=db, group_id=group_id, user_id=current_user.id
-    )
+    role = await group_service.get_user_role_in_group(db=db, group_id=group_id, user_id=current_user.id)
     if role != GroupRole.TEAM_LEAD:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -56,9 +52,7 @@ async def create_group(
     Доступно только для администраторов и тимлидов.
     """
     if current_user.role not in [UserRole.ADMIN, UserRole.TEAM_LEAD]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Недостаточно прав"
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Недостаточно прав")
 
     # Проверяем, существует ли группа с таким именем
     group = await group_service.get_by_name(db=db, name=group_in.name)
@@ -187,9 +181,7 @@ async def add_member_to_group(
     await check_team_lead_rights(db=db, group_id=group_id, current_user=current_user)
 
     # Проверяем, состоит ли пользователь уже в группе
-    if await group_service.is_user_in_group(
-        db=db, group_id=group_id, user_id=member_in.user_id
-    ):
+    if await group_service.is_user_in_group(db=db, group_id=group_id, user_id=member_in.user_id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Пользователь уже состоит в этой группе",
@@ -242,18 +234,14 @@ async def update_member_role(
     await check_team_lead_rights(db=db, group_id=group_id, current_user=current_user)
 
     # Проверяем, состоит ли пользователь в группе
-    if not await group_service.is_user_in_group(
-        db=db, group_id=group_id, user_id=user_id
-    ):
+    if not await group_service.is_user_in_group(db=db, group_id=group_id, user_id=user_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Пользователь не найден в группе",
         )
 
     # Обновляем роль пользователя
-    member = await group_service.update_user_role(
-        db=db, group_id=group_id, user_id=user_id, role=role_in.role
-    )
+    member = await group_service.update_user_role(db=db, group_id=group_id, user_id=user_id, role=role_in.role)
 
     if not member:
         raise HTTPException(
@@ -281,18 +269,14 @@ async def remove_member_from_group(
 
     # Нельзя удалить самого себя из группы, если ты тимлид
     if user_id == current_user.id and current_user.role != UserRole.ADMIN:
-        role = await group_service.get_user_role_in_group(
-            db=db, group_id=group_id, user_id=current_user.id
-        )
+        role = await group_service.get_user_role_in_group(db=db, group_id=group_id, user_id=current_user.id)
         if role == GroupRole.TEAM_LEAD:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Тимлид не может удалить себя из группы",
             )
 
-    result = await group_service.remove_user_from_group(
-        db=db, group_id=group_id, user_id=user_id
-    )
+    result = await group_service.remove_user_from_group(db=db, group_id=group_id, user_id=user_id)
     if not result:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

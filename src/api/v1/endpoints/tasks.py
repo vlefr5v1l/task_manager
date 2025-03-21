@@ -25,9 +25,7 @@ router = APIRouter()
 
 
 # Проверка прав на проект
-async def check_project_access(
-    db: AsyncSession, project_id: int, current_user: User
-) -> bool:
+async def check_project_access(db: AsyncSession, project_id: int, current_user: User) -> bool:
     # Администратор имеет доступ ко всем проектам
     if current_user.role == UserRole.ADMIN:
         return True
@@ -38,9 +36,7 @@ async def check_project_access(
         return False
 
     # Проверяем, является ли пользователь участником группы проекта
-    return await group_service.is_user_in_group(
-        db=db, group_id=project.group_id, user_id=current_user.id
-    )
+    return await group_service.is_user_in_group(db=db, group_id=project.group_id, user_id=current_user.id)
 
 
 # Проверка прав на задачу
@@ -58,9 +54,7 @@ async def check_task_access(db: AsyncSession, task_id: int, current_user: User) 
         return task
 
     # Проверяем доступ к проекту
-    if not await check_project_access(
-        db=db, project_id=task.project_id, current_user=current_user
-    ):
+    if not await check_project_access(db=db, project_id=task.project_id, current_user=current_user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="У вас нет доступа к этой задаче",
@@ -70,9 +64,7 @@ async def check_task_access(db: AsyncSession, task_id: int, current_user: User) 
 
 
 # Проверка прав на редактирование задачи
-async def check_task_edit_rights(
-    db: AsyncSession, task: Task, current_user: User
-) -> None:
+async def check_task_edit_rights(db: AsyncSession, task: Task, current_user: User) -> None:
     # Администратор имеет полные права
     if current_user.role == UserRole.ADMIN:
         return
@@ -80,14 +72,10 @@ async def check_task_edit_rights(
     # Получаем проект
     project = await project_service.get(db=db, id=task.project_id)
     if not project:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Проект задачи не найден"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Проект задачи не найден")
 
     # Тимлид группы имеет полные права на редактирование
-    role = await group_service.get_user_role_in_group(
-        db=db, group_id=project.group_id, user_id=current_user.id
-    )
+    role = await group_service.get_user_role_in_group(db=db, group_id=project.group_id, user_id=current_user.id)
     if role == GroupRole.TEAM_LEAD:
         return
 
@@ -116,18 +104,14 @@ async def create_task(
     Создать новую задачу.
     """
     # Проверяем доступ к проекту
-    if not await check_project_access(
-        db=db, project_id=task_in.project_id, current_user=current_user
-    ):
+    if not await check_project_access(db=db, project_id=task_in.project_id, current_user=current_user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="У вас нет доступа к этому проекту",
         )
 
     # Создаем задачу
-    task = await task_service.create(
-        db=db, obj_in=task_in, created_by_id=current_user.id
-    )
+    task = await task_service.create(db=db, obj_in=task_in, created_by_id=current_user.id)
     return task
 
 
@@ -173,9 +157,7 @@ async def read_tasks(
     if current_user.role != UserRole.ADMIN and project_id is None:
         filtered_tasks = []
         for task in tasks:
-            if await check_project_access(
-                db=db, project_id=task.project_id, current_user=current_user
-            ):
+            if await check_project_access(db=db, project_id=task.project_id, current_user=current_user):
                 filtered_tasks.append(task)
         return filtered_tasks
 
@@ -222,9 +204,7 @@ async def update_task(
 
     # Если меняется проект, проверяем доступ к новому проекту
     if task_in.project_id and task_in.project_id != task.project_id:
-        if not await check_project_access(
-            db=db, project_id=task_in.project_id, current_user=current_user
-        ):
+        if not await check_project_access(db=db, project_id=task_in.project_id, current_user=current_user):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="У вас нет доступа к этому проекту",
@@ -251,17 +231,12 @@ async def update_task_status(
     # Тимлид группы и администратор могут менять любой статус
     if current_user.role != UserRole.ADMIN:
         project = await project_service.get(db=db, id=task.project_id)
-        role = await group_service.get_user_role_in_group(
-            db=db, group_id=project.group_id, user_id=current_user.id
-        )
+        role = await group_service.get_user_role_in_group(db=db, group_id=project.group_id, user_id=current_user.id)
 
         # Если не тимлид, проверяем дополнительные условия
         if role != GroupRole.TEAM_LEAD:
             # Проверяем, является ли пользователь создателем или исполнителем
-            if (
-                task.created_by_id != current_user.id
-                and task.assigned_to_id != current_user.id
-            ):
+            if task.created_by_id != current_user.id and task.assigned_to_id != current_user.id:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="У вас нет прав менять статус этой задачи",
@@ -278,9 +253,7 @@ async def update_task_status(
                     detail="Только создатель задачи может переводить её из статуса RESOLVED в другой статус",
                 )
 
-    updated_task = await task_service.change_status(
-        db=db, task_id=task_id, status=status
-    )
+    updated_task = await task_service.change_status(db=db, task_id=task_id, status=status)
     return updated_task
 
 
@@ -299,9 +272,7 @@ async def delete_task(
     # Проверка, может ли пользователь удалить задачу
     if current_user.role != UserRole.ADMIN:
         project = await project_service.get(db=db, id=task.project_id)
-        role = await group_service.get_user_role_in_group(
-            db=db, group_id=project.group_id, user_id=current_user.id
-        )
+        role = await group_service.get_user_role_in_group(db=db, group_id=project.group_id, user_id=current_user.id)
 
         # Только тимлид или создатель задачи может её удалить
         if role != GroupRole.TEAM_LEAD and task.created_by_id != current_user.id:
@@ -329,9 +300,7 @@ async def create_task_comment(
     await check_task_access(db=db, task_id=task_id, current_user=current_user)
 
     # Создаем комментарий
-    comment = await task_service.create_comment(
-        db=db, task_id=task_id, user_id=current_user.id, obj_in=comment_in
-    )
+    comment = await task_service.create_comment(db=db, task_id=task_id, user_id=current_user.id, obj_in=comment_in)
 
     return comment
 
@@ -353,9 +322,7 @@ async def read_task_comments(
     return comments
 
 
-@router.delete(
-    "/{task_id}/comments/{comment_id}", status_code=status.HTTP_204_NO_CONTENT
-)
+@router.delete("/{task_id}/comments/{comment_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task_comment(
     *,
     db: AsyncSession = Depends(get_db),
@@ -390,9 +357,7 @@ async def delete_task_comment(
     if current_user.role != UserRole.ADMIN and comment.user_id != current_user.id:
         # Проверяем, является ли пользователь тимлидом
         project = await project_service.get(db=db, id=task.project_id)
-        role = await group_service.get_user_role_in_group(
-            db=db, group_id=project.group_id, user_id=current_user.id
-        )
+        role = await group_service.get_user_role_in_group(db=db, group_id=project.group_id, user_id=current_user.id)
 
         if role != GroupRole.TEAM_LEAD:
             raise HTTPException(

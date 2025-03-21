@@ -55,9 +55,7 @@ async def update(db: AsyncSession, *, db_obj: User, obj_in: UserUpdate) -> User:
     return db_obj
 
 
-async def authenticate(
-    db: AsyncSession, *, username_or_email: str, password: str
-) -> Optional[User]:
+async def authenticate(db: AsyncSession, *, username_or_email: str, password: str) -> Optional[User]:
     """
     Проверяет пользователя по username или email и паролю
     """

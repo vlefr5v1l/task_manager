@@ -82,9 +82,7 @@ async def test_change_task_status(client: TestClient, db_session: AsyncSession):
 
     # Меняем статус задачи
     new_status = TaskStatus.IN_PROGRESS.value
-    status_response = client.patch(
-        f"/api/v1/tasks/{task_id}/status?status={new_status}", headers=headers
-    )
+    status_response = client.patch(f"/api/v1/tasks/{task_id}/status?status={new_status}", headers=headers)
 
     assert status_response.status_code == 200
     assert status_response.json()["status"] == new_status
@@ -116,9 +114,7 @@ async def test_add_comment_to_task(client: TestClient, db_session: AsyncSession)
     # Добавляем комментарий
     comment_data = {"content": f"Test comment {random_string(10)}"}
 
-    comment_response = client.post(
-        f"/api/v1/tasks/{task_id}/comments", json=comment_data, headers=headers
-    )
+    comment_response = client.post(f"/api/v1/tasks/{task_id}/comments", json=comment_data, headers=headers)
 
     assert comment_response.status_code == 200
     assert comment_response.json()["content"] == comment_data["content"]

@@ -13,9 +13,7 @@ from src.services import group as group_service
 router = APIRouter()
 
 
-async def check_project_rights(
-    db: AsyncSession, project_id: int, current_user: User
-) -> Project:
+async def check_project_rights(db: AsyncSession, project_id: int, current_user: User) -> Project:
     project = await project_service.get(db=db, id=project_id)
     if not project:
         raise HTTPException(
@@ -26,9 +24,7 @@ async def check_project_rights(
     if current_user.role == UserRole.ADMIN:
         return project
 
-    if not await group_service.is_user_in_group(
-        db=db, group_id=project.group_id, user_id=current_user.id
-    ):
+    if not await group_service.is_user_in_group(db=db, group_id=project.group_id, user_id=current_user.id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="У вас нет доступа к этому проекту",
@@ -37,17 +33,11 @@ async def check_project_rights(
     return project
 
 
-async def check_project_edit_rights(
-    db: AsyncSession, project_id: int, current_user: User
-) -> Project:
-    project = await check_project_rights(
-        db=db, project_id=project_id, current_user=current_user
-    )
+async def check_project_edit_rights(db: AsyncSession, project_id: int, current_user: User) -> Project:
+    project = await check_project_rights(db=db, project_id=project_id, current_user=current_user)
 
     if current_user.role != UserRole.ADMIN:
-        role = await group_service.get_user_role_in_group(
-            db=db, group_id=project.group_id, user_id=current_user.id
-        )
+        role = await group_service.get_user_role_in_group(db=db, group_id=project.group_id, user_id=current_user.id)
         if role != GroupRole.TEAM_LEAD:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -76,9 +66,7 @@ async def create_project(
         )
 
     if current_user.role != UserRole.ADMIN:
-        role = await group_service.get_user_role_in_group(
-            db=db, group_id=project_in.group_id, user_id=current_user.id
-        )
+        role = await group_service.get_user_role_in_group(db=db, group_id=project_in.group_id, user_id=current_user.id)
         if not role or role != GroupRole.TEAM_LEAD:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -112,17 +100,13 @@ async def read_projects(
 
         # Проверяем права доступа к группе (кроме админа)
         if current_user.role != UserRole.ADMIN:
-            if not await group_service.is_user_in_group(
-                db=db, group_id=group_id, user_id=current_user.id
-            ):
+            if not await group_service.is_user_in_group(db=db, group_id=group_id, user_id=current_user.id):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="У вас нет доступа к этой группе",
                 )
 
-        projects = await project_service.get_by_group(
-            db=db, group_id=group_id, skip=skip, limit=limit
-        )
+        projects = await project_service.get_by_group(db=db, group_id=group_id, skip=skip, limit=limit)
     else:
         # Для админа показываем все проекты
         if current_user.role == UserRole.ADMIN:
@@ -146,9 +130,7 @@ async def read_project(
     """
     Получить информацию о конкретном проекте по ID.
     """
-    project = await check_project_rights(
-        db=db, project_id=project_id, current_user=current_user
-    )
+    project = await check_project_rights(db=db, project_id=project_id, current_user=current_user)
     return project
 
 
@@ -163,9 +145,7 @@ async def update_project(
     """
     Обновить информацию о проекте.
     """
-    project = await check_project_edit_rights(
-        db=db, project_id=project_id, current_user=current_user
-    )
+    project = await check_project_edit_rights(db=db, project_id=project_id, current_user=current_user)
 
     if project_in.group_id and project_in.group_id != project.group_id:
         if current_user.role != UserRole.ADMIN:
@@ -178,9 +158,7 @@ async def update_project(
                     detail="Недостаточно прав для перемещения проекта в эту группу",
                 )
 
-    updated_project = await project_service.update(
-        db=db, db_obj=project, obj_in=project_in
-    )
+    updated_project = await project_service.update(db=db, db_obj=project, obj_in=project_in)
     return updated_project
 
 
@@ -194,7 +172,5 @@ async def delete_project(
     """
     Удалить проект.
     """
-    await check_project_edit_rights(
-        db=db, project_id=project_id, current_user=current_user
-    )
+    await check_project_edit_rights(db=db, project_id=project_id, current_user=current_user)
     await project_service.delete(db=db, id=project_id)

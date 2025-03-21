@@ -64,21 +64,15 @@ async def add_user_to_group(
     return db_obj
 
 
-async def remove_user_from_group(
-    db: AsyncSession, *, group_id: int, user_id: int
-) -> bool:
+async def remove_user_from_group(db: AsyncSession, *, group_id: int, user_id: int) -> bool:
     result = await db.execute(
-        delete(GroupMember).where(
-            (GroupMember.group_id == group_id) & (GroupMember.user_id == user_id)
-        )
+        delete(GroupMember).where((GroupMember.group_id == group_id) & (GroupMember.user_id == user_id))
     )
     await db.commit()
     return result.rowcount > 0
 
 
-async def update_user_role(
-    db: AsyncSession, *, group_id: int, user_id: int, role: GroupRole
-) -> Optional[GroupMember]:
+async def update_user_role(db: AsyncSession, *, group_id: int, user_id: int, role: GroupRole) -> Optional[GroupMember]:
     result = await db.execute(
         update(GroupMember)
         .where((GroupMember.group_id == group_id) & (GroupMember.user_id == user_id))
@@ -90,28 +84,20 @@ async def update_user_role(
 
 
 async def get_group_members(db: AsyncSession, *, group_id: int) -> List[GroupMember]:
-    result = await db.execute(
-        select(GroupMember).where(GroupMember.group_id == group_id)
-    )
+    result = await db.execute(select(GroupMember).where(GroupMember.group_id == group_id))
     return result.scalars().all()
 
 
 async def is_user_in_group(db: AsyncSession, *, group_id: int, user_id: int) -> bool:
     result = await db.execute(
-        select(GroupMember).where(
-            (GroupMember.group_id == group_id) & (GroupMember.user_id == user_id)
-        )
+        select(GroupMember).where((GroupMember.group_id == group_id) & (GroupMember.user_id == user_id))
     )
     return result.scalars().first() is not None
 
 
-async def get_user_role_in_group(
-    db: AsyncSession, *, group_id: int, user_id: int
-) -> Optional[GroupRole]:
+async def get_user_role_in_group(db: AsyncSession, *, group_id: int, user_id: int) -> Optional[GroupRole]:
     result = await db.execute(
-        select(GroupMember.role).where(
-            (GroupMember.group_id == group_id) & (GroupMember.user_id == user_id)
-        )
+        select(GroupMember.role).where((GroupMember.group_id == group_id) & (GroupMember.user_id == user_id))
     )
     member = result.scalars().first()
     return member
