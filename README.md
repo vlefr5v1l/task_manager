@@ -1,4 +1,5 @@
 # Task Management System
+![CI/CD Pipeline](https://github.com/username/task-management/actions/workflows/main.yml/badge.svg)
 
 Система для отслеживания и управления задачами, где пользователи могут создавать, обновлять и отслеживать прогресс своих задач. Система поддерживает проекты, группы пользователей, очереди задач и уведомления.
 
