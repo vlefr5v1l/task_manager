@@ -10,7 +10,9 @@ class Project(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     description = Column(String, nullable=True)
-    group_id = Column(Integer, ForeignKey("groups.id", ondelete="SET NULL"), nullable=True)
+    group_id = Column(
+        Integer, ForeignKey("groups.id", ondelete="SET NULL"), nullable=True
+    )
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

@@ -12,8 +12,7 @@ class TaskBase(BaseModel):
     project_id: int
     assigned_to_id: Optional[int] = None
     deadline: Optional[datetime] = Field(
-        None,
-        description="Срок выполнения задачи (UTC)"
+        None, description="Срок выполнения задачи (UTC)"
     )
 
 

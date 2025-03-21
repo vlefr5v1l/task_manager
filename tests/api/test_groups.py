@@ -14,7 +14,7 @@ async def test_create_group_as_admin(client: TestClient, db_session: AsyncSessio
 
     group_data = {
         "name": f"Test Group {random_string(5)}",
-        "description": "Test group description"
+        "description": "Test group description",
     }
 
     response = client.post("/api/v1/groups/", json=group_data, headers=headers)
@@ -33,7 +33,7 @@ async def test_create_group_as_team_lead(client: TestClient, db_session: AsyncSe
 
     group_data = {
         "name": f"Lead Group {random_string(5)}",
-        "description": "Team lead's group"
+        "description": "Team lead's group",
     }
 
     response = client.post("/api/v1/groups/", json=group_data, headers=headers)
@@ -48,7 +48,7 @@ async def test_create_group_as_developer(client: TestClient, db_session: AsyncSe
 
     group_data = {
         "name": f"Dev Group {random_string(5)}",
-        "description": "Developer's group"
+        "description": "Developer's group",
     }
 
     response = client.post("/api/v1/groups/", json=group_data, headers=headers)

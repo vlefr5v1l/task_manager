@@ -18,29 +18,29 @@ async def get(db: AsyncSession, id: int) -> Optional[Task]:
 
 
 async def get_multi(
-        db: AsyncSession,
-        skip: int = 0,
-        limit: int = 100,
-        filters: Optional[Dict[str, Any]] = None
+    db: AsyncSession,
+    skip: int = 0,
+    limit: int = 100,
+    filters: Optional[Dict[str, Any]] = None,
 ) -> List[Task]:
     query = select(Task)
 
     # Применяем фильтры, если они указаны
     if filters:
-        if 'project_id' in filters and filters['project_id'] is not None:
-            query = query.where(Task.project_id == filters['project_id'])
-        if 'status' in filters and filters['status'] is not None:
-            query = query.where(Task.status == filters['status'])
-        if 'priority' in filters and filters['priority'] is not None:
-            query = query.where(Task.priority == filters['priority'])
-        if 'created_by_id' in filters and filters['created_by_id'] is not None:
-            query = query.where(Task.created_by_id == filters['created_by_id'])
-        if 'assigned_to_id' in filters and filters['assigned_to_id'] is not None:
-            query = query.where(Task.assigned_to_id == filters['assigned_to_id'])
-        if 'deadline_from' in filters and filters['deadline_from'] is not None:
-            query = query.where(Task.deadline >= filters['deadline_from'])
-        if 'deadline_to' in filters and filters['deadline_to'] is not None:
-            query = query.where(Task.deadline <= filters['deadline_to'])
+        if "project_id" in filters and filters["project_id"] is not None:
+            query = query.where(Task.project_id == filters["project_id"])
+        if "status" in filters and filters["status"] is not None:
+            query = query.where(Task.status == filters["status"])
+        if "priority" in filters and filters["priority"] is not None:
+            query = query.where(Task.priority == filters["priority"])
+        if "created_by_id" in filters and filters["created_by_id"] is not None:
+            query = query.where(Task.created_by_id == filters["created_by_id"])
+        if "assigned_to_id" in filters and filters["assigned_to_id"] is not None:
+            query = query.where(Task.assigned_to_id == filters["assigned_to_id"])
+        if "deadline_from" in filters and filters["deadline_from"] is not None:
+            query = query.where(Task.deadline >= filters["deadline_from"])
+        if "deadline_to" in filters and filters["deadline_to"] is not None:
+            query = query.where(Task.deadline <= filters["deadline_to"])
 
     # Добавляем пагинацию
     query = query.offset(skip).limit(limit)
@@ -68,7 +68,7 @@ async def create(db: AsyncSession, *, obj_in: TaskCreate, created_by_id: int) ->
         project_id=obj_in.project_id,
         deadline=deadline,
         created_at=now,
-        updated_at=now
+        updated_at=now,
     )
     db.add(db_obj)
     await db.commit()
@@ -80,10 +80,10 @@ async def update(db: AsyncSession, *, db_obj: Task, obj_in: TaskUpdate) -> Task:
     obj_data = obj_in.dict(exclude_unset=True)
 
     # Обработка deadline, если он задан
-    if 'deadline' in obj_data and obj_data['deadline'] is not None:
-        deadline = obj_data['deadline']
+    if "deadline" in obj_data and obj_data["deadline"] is not None:
+        deadline = obj_data["deadline"]
         if deadline.tzinfo is None:
-            obj_data['deadline'] = deadline.replace(tzinfo=timezone.utc)
+            obj_data["deadline"] = deadline.replace(tzinfo=timezone.utc)
 
     for field, value in obj_data.items():
         setattr(db_obj, field, value)
@@ -103,7 +103,9 @@ async def delete(db: AsyncSession, *, id: int) -> bool:
     return result.rowcount > 0
 
 
-async def change_status(db: AsyncSession, *, task_id: int, status: TaskStatus) -> Optional[Task]:
+async def change_status(
+    db: AsyncSession, *, task_id: int, status: TaskStatus
+) -> Optional[Task]:
     task = await get(db, id=task_id)
     if not task:
         return None
@@ -118,12 +120,10 @@ async def change_status(db: AsyncSession, *, task_id: int, status: TaskStatus) -
 
 
 # Функции для комментариев
-async def create_comment(db: AsyncSession, *, task_id: int, user_id: int, obj_in: CommentCreate) -> Comment:
-    db_obj = Comment(
-        task_id=task_id,
-        user_id=user_id,
-        content=obj_in.content
-    )
+async def create_comment(
+    db: AsyncSession, *, task_id: int, user_id: int, obj_in: CommentCreate
+) -> Comment:
+    db_obj = Comment(task_id=task_id, user_id=user_id, content=obj_in.content)
     db.add(db_obj)
     await db.commit()
     await db.refresh(db_obj)
@@ -132,9 +132,7 @@ async def create_comment(db: AsyncSession, *, task_id: int, user_id: int, obj_in
 
 async def get_task_comments(db: AsyncSession, *, task_id: int) -> List[Comment]:
     result = await db.execute(
-        select(Comment)
-        .where(Comment.task_id == task_id)
-        .order_by(Comment.created_at)
+        select(Comment).where(Comment.task_id == task_id).order_by(Comment.created_at)
     )
     return result.scalars().all()
 

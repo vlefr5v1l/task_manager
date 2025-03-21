@@ -12,9 +12,9 @@ router = APIRouter()
 
 @router.get("/", response_model=List[User])
 async def read_users(
-        db: AsyncSession = Depends(get_db),
-        skip: int = 0,
-        limit: int = 100,
+    db: AsyncSession = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100,
 ) -> Any:
     """Получить список всех пользователей"""
     users = await user_service.get_multi(db=db, skip=skip, limit=limit)

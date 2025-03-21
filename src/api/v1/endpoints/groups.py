@@ -6,7 +6,14 @@ from src.db.session import get_db
 from src.api.v1.endpoints.auth import get_current_user
 from src.models.user import User, UserRole
 from src.models.group import GroupRole
-from src.schemas.group import Group, GroupCreate, GroupUpdate, GroupMember, GroupMemberCreate, GroupMemberUpdate
+from src.schemas.group import (
+    Group,
+    GroupCreate,
+    GroupUpdate,
+    GroupMember,
+    GroupMemberCreate,
+    GroupMemberUpdate,
+)
 from src.services import group as group_service
 
 router = APIRouter()
@@ -16,8 +23,7 @@ router = APIRouter()
 def check_admin_rights(current_user: User):
     if current_user.role != UserRole.ADMIN:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Недостаточно прав"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Недостаточно прав"
         )
 
 
@@ -28,20 +34,22 @@ async def check_team_lead_rights(db: AsyncSession, group_id: int, current_user: 
         return
 
     # Проверяем, является ли пользователь тимлидом в данной группе
-    role = await group_service.get_user_role_in_group(db=db, group_id=group_id, user_id=current_user.id)
+    role = await group_service.get_user_role_in_group(
+        db=db, group_id=group_id, user_id=current_user.id
+    )
     if role != GroupRole.TEAM_LEAD:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Недостаточно прав. Требуется роль TeamLead в данной группе"
+            detail="Недостаточно прав. Требуется роль TeamLead в данной группе",
         )
 
 
 @router.post("/", response_model=Group, status_code=status.HTTP_201_CREATED)
 async def create_group(
-        *,
-        db: AsyncSession = Depends(get_db),
-        group_in: GroupCreate,
-        current_user: User = Depends(get_current_user)
+    *,
+    db: AsyncSession = Depends(get_db),
+    group_in: GroupCreate,
+    current_user: User = Depends(get_current_user),
 ) -> Any:
     """
     Создать новую группу.
@@ -49,8 +57,7 @@ async def create_group(
     """
     if current_user.role not in [UserRole.ADMIN, UserRole.TEAM_LEAD]:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Недостаточно прав"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Недостаточно прав"
         )
 
     # Проверяем, существует ли группа с таким именем
@@ -58,7 +65,7 @@ async def create_group(
     if group:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Группа с таким именем уже существует"
+            detail="Группа с таким именем уже существует",
         )
 
     # Создаем группу
@@ -67,10 +74,7 @@ async def create_group(
     # Если группу создал тимлид, добавляем его в группу с ролью тимлида
     if current_user.role == UserRole.TEAM_LEAD:
         await group_service.add_user_to_group(
-            db=db,
-            group_id=group.id,
-            user_id=current_user.id,
-            role=GroupRole.TEAM_LEAD
+            db=db, group_id=group.id, user_id=current_user.id, role=GroupRole.TEAM_LEAD
         )
 
     return group
@@ -78,10 +82,10 @@ async def create_group(
 
 @router.get("/", response_model=List[Group])
 async def read_groups(
-        db: AsyncSession = Depends(get_db),
-        skip: int = 0,
-        limit: int = 100,
-        current_user: User = Depends(get_current_user)
+    db: AsyncSession = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100,
+    current_user: User = Depends(get_current_user),
 ) -> Any:
     """
     Получить список всех групп.
@@ -92,10 +96,10 @@ async def read_groups(
 
 @router.get("/{group_id}", response_model=Group)
 async def read_group(
-        *,
-        db: AsyncSession = Depends(get_db),
-        group_id: int,
-        current_user: User = Depends(get_current_user)
+    *,
+    db: AsyncSession = Depends(get_db),
+    group_id: int,
+    current_user: User = Depends(get_current_user),
 ) -> Any:
     """
     Получить информацию о конкретной группе по ID.
@@ -104,18 +108,18 @@ async def read_group(
     if not group:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Группа с ID {group_id} не найдена"
+            detail=f"Группа с ID {group_id} не найдена",
         )
     return group
 
 
 @router.put("/{group_id}", response_model=Group)
 async def update_group(
-        *,
-        db: AsyncSession = Depends(get_db),
-        group_id: int,
-        group_in: GroupUpdate,
-        current_user: User = Depends(get_current_user)
+    *,
+    db: AsyncSession = Depends(get_db),
+    group_id: int,
+    group_in: GroupUpdate,
+    current_user: User = Depends(get_current_user),
 ) -> Any:
     """
     Обновить информацию о группе.
@@ -125,7 +129,7 @@ async def update_group(
     if not group:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Группа с ID {group_id} не найдена"
+            detail=f"Группа с ID {group_id} не найдена",
         )
 
     # Проверяем права
@@ -137,10 +141,10 @@ async def update_group(
 
 @router.delete("/{group_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_group(
-        *,
-        db: AsyncSession = Depends(get_db),
-        group_id: int,
-        current_user: User = Depends(get_current_user)
+    *,
+    db: AsyncSession = Depends(get_db),
+    group_id: int,
+    current_user: User = Depends(get_current_user),
 ) -> None:
     """
     Удалить группу.
@@ -152,7 +156,7 @@ async def delete_group(
     if not group:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Группа с ID {group_id} не найдена"
+            detail=f"Группа с ID {group_id} не найдена",
         )
 
     await group_service.delete(db=db, id=group_id)
@@ -161,11 +165,11 @@ async def delete_group(
 
 @router.post("/{group_id}/members", response_model=GroupMember)
 async def add_member_to_group(
-        *,
-        db: AsyncSession = Depends(get_db),
-        group_id: int,
-        member_in: GroupMemberCreate,
-        current_user: User = Depends(get_current_user)
+    *,
+    db: AsyncSession = Depends(get_db),
+    group_id: int,
+    member_in: GroupMemberCreate,
+    current_user: User = Depends(get_current_user),
 ) -> Any:
     """
     Добавить пользователя в группу.
@@ -176,25 +180,24 @@ async def add_member_to_group(
     if not group:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Группа с ID {group_id} не найдена"
+            detail=f"Группа с ID {group_id} не найдена",
         )
 
     # Проверяем права
     await check_team_lead_rights(db=db, group_id=group_id, current_user=current_user)
 
     # Проверяем, состоит ли пользователь уже в группе
-    if await group_service.is_user_in_group(db=db, group_id=group_id, user_id=member_in.user_id):
+    if await group_service.is_user_in_group(
+        db=db, group_id=group_id, user_id=member_in.user_id
+    ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Пользователь уже состоит в этой группе"
+            detail="Пользователь уже состоит в этой группе",
         )
 
     # Добавляем пользователя в группу
     member = await group_service.add_user_to_group(
-        db=db,
-        group_id=group_id,
-        user_id=member_in.user_id,
-        role=member_in.role
+        db=db, group_id=group_id, user_id=member_in.user_id, role=member_in.role
     )
 
     return member
@@ -202,10 +205,10 @@ async def add_member_to_group(
 
 @router.get("/{group_id}/members", response_model=List[GroupMember])
 async def read_group_members(
-        *,
-        db: AsyncSession = Depends(get_db),
-        group_id: int,
-        current_user: User = Depends(get_current_user)
+    *,
+    db: AsyncSession = Depends(get_db),
+    group_id: int,
+    current_user: User = Depends(get_current_user),
 ) -> Any:
     """
     Получить список всех участников группы.
@@ -215,7 +218,7 @@ async def read_group_members(
     if not group:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Группа с ID {group_id} не найдена"
+            detail=f"Группа с ID {group_id} не найдена",
         )
 
     members = await group_service.get_group_members(db=db, group_id=group_id)
@@ -224,12 +227,12 @@ async def read_group_members(
 
 @router.put("/{group_id}/members/{user_id}", response_model=GroupMember)
 async def update_member_role(
-        *,
-        db: AsyncSession = Depends(get_db),
-        group_id: int,
-        user_id: int,
-        role_in: GroupMemberUpdate,
-        current_user: User = Depends(get_current_user)
+    *,
+    db: AsyncSession = Depends(get_db),
+    group_id: int,
+    user_id: int,
+    role_in: GroupMemberUpdate,
+    current_user: User = Depends(get_current_user),
 ) -> Any:
     """
     Обновить роль пользователя в группе.
@@ -239,24 +242,23 @@ async def update_member_role(
     await check_team_lead_rights(db=db, group_id=group_id, current_user=current_user)
 
     # Проверяем, состоит ли пользователь в группе
-    if not await group_service.is_user_in_group(db=db, group_id=group_id, user_id=user_id):
+    if not await group_service.is_user_in_group(
+        db=db, group_id=group_id, user_id=user_id
+    ):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Пользователь не найден в группе"
+            detail="Пользователь не найден в группе",
         )
 
     # Обновляем роль пользователя
     member = await group_service.update_user_role(
-        db=db,
-        group_id=group_id,
-        user_id=user_id,
-        role=role_in.role
+        db=db, group_id=group_id, user_id=user_id, role=role_in.role
     )
 
     if not member:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Не удалось обновить роль пользователя"
+            detail="Не удалось обновить роль пользователя",
         )
 
     return member
@@ -264,11 +266,11 @@ async def update_member_role(
 
 @router.delete("/{group_id}/members/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_member_from_group(
-        *,
-        db: AsyncSession = Depends(get_db),
-        group_id: int,
-        user_id: int,
-        current_user: User = Depends(get_current_user)
+    *,
+    db: AsyncSession = Depends(get_db),
+    group_id: int,
+    user_id: int,
+    current_user: User = Depends(get_current_user),
 ) -> None:
     """
     Удалить пользователя из группы.
@@ -279,18 +281,22 @@ async def remove_member_from_group(
 
     # Нельзя удалить самого себя из группы, если ты тимлид
     if user_id == current_user.id and current_user.role != UserRole.ADMIN:
-        role = await group_service.get_user_role_in_group(db=db, group_id=group_id, user_id=current_user.id)
+        role = await group_service.get_user_role_in_group(
+            db=db, group_id=group_id, user_id=current_user.id
+        )
         if role == GroupRole.TEAM_LEAD:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Тимлид не может удалить себя из группы"
+                detail="Тимлид не может удалить себя из группы",
             )
 
-    result = await group_service.remove_user_from_group(db=db, group_id=group_id, user_id=user_id)
+    result = await group_service.remove_user_from_group(
+        db=db, group_id=group_id, user_id=user_id
+    )
     if not result:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Пользователь не найден в группе"
+            detail="Пользователь не найден в группе",
         )
 
     return None

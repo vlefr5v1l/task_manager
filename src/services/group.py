@@ -24,10 +24,7 @@ async def get_multi(db: AsyncSession, skip: int = 0, limit: int = 100) -> List[G
 
 
 async def create(db: AsyncSession, *, obj_in: GroupCreate) -> Group:
-    db_obj = Group(
-        name=obj_in.name,
-        description=obj_in.description
-    )
+    db_obj = Group(name=obj_in.name, description=obj_in.description)
     db.add(db_obj)
     await db.commit()
     await db.refresh(db_obj)
@@ -53,20 +50,23 @@ async def delete(db: AsyncSession, *, id: int) -> bool:
 
 
 # Функции для управления членами группы
-async def add_user_to_group(db: AsyncSession, *, group_id: int, user_id: int,
-                            role: GroupRole = GroupRole.DEVELOPER) -> GroupMember:
-    db_obj = GroupMember(
-        group_id=group_id,
-        user_id=user_id,
-        role=role
-    )
+async def add_user_to_group(
+    db: AsyncSession,
+    *,
+    group_id: int,
+    user_id: int,
+    role: GroupRole = GroupRole.DEVELOPER,
+) -> GroupMember:
+    db_obj = GroupMember(group_id=group_id, user_id=user_id, role=role)
     db.add(db_obj)
     await db.commit()
     await db.refresh(db_obj)
     return db_obj
 
 
-async def remove_user_from_group(db: AsyncSession, *, group_id: int, user_id: int) -> bool:
+async def remove_user_from_group(
+    db: AsyncSession, *, group_id: int, user_id: int
+) -> bool:
     result = await db.execute(
         delete(GroupMember).where(
             (GroupMember.group_id == group_id) & (GroupMember.user_id == user_id)
@@ -76,7 +76,9 @@ async def remove_user_from_group(db: AsyncSession, *, group_id: int, user_id: in
     return result.rowcount > 0
 
 
-async def update_user_role(db: AsyncSession, *, group_id: int, user_id: int, role: GroupRole) -> Optional[GroupMember]:
+async def update_user_role(
+    db: AsyncSession, *, group_id: int, user_id: int, role: GroupRole
+) -> Optional[GroupMember]:
     result = await db.execute(
         update(GroupMember)
         .where((GroupMember.group_id == group_id) & (GroupMember.user_id == user_id))
@@ -103,7 +105,9 @@ async def is_user_in_group(db: AsyncSession, *, group_id: int, user_id: int) -> 
     return result.scalars().first() is not None
 
 
-async def get_user_role_in_group(db: AsyncSession, *, group_id: int, user_id: int) -> Optional[GroupRole]:
+async def get_user_role_in_group(
+    db: AsyncSession, *, group_id: int, user_id: int
+) -> Optional[GroupRole]:
     result = await db.execute(
         select(GroupMember.role).where(
             (GroupMember.group_id == group_id) & (GroupMember.user_id == user_id)

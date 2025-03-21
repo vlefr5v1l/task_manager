@@ -57,8 +57,7 @@ async def test_db():
 
         # Проверяем существование тестовой БД
         db_exists = await conn.fetchval(
-            "SELECT 1 FROM pg_database WHERE datname = $1",
-            "test_task_management"
+            "SELECT 1 FROM pg_database WHERE datname = $1", "test_task_management"
         )
 
         # Если БД не существует, создаем её

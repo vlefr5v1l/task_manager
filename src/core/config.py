@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env.example",
         env_file_encoding="utf-8",
-        extra="ignore"  # Разрешаем дополнительные поля
+        extra="ignore",  # Разрешаем дополнительные поля
     )
 
 

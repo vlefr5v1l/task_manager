@@ -28,7 +28,7 @@ async def create(db: AsyncSession, *, obj_in: UserCreate) -> User:
         email=obj_in.email,
         password_hash=get_password_hash(obj_in.password),
         full_name=obj_in.full_name,
-        role=obj_in.role
+        role=obj_in.role,
     )
     db.add(db_obj)
     await db.commit()
@@ -55,7 +55,9 @@ async def update(db: AsyncSession, *, db_obj: User, obj_in: UserUpdate) -> User:
     return db_obj
 
 
-async def authenticate(db: AsyncSession, *, username_or_email: str, password: str) -> Optional[User]:
+async def authenticate(
+    db: AsyncSession, *, username_or_email: str, password: str
+) -> Optional[User]:
     """
     Проверяет пользователя по username или email и паролю
     """
