@@ -1,11 +1,11 @@
 import random
 import string
-from typing import Dict, Optional
+from typing import Dict
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.user import User, UserRole
-from src.core.security import get_password_hash
+from src.validator.security import get_password_hash
 
 
 def random_string(length: int = 10) -> str:

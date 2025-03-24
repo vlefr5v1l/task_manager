@@ -74,6 +74,7 @@ async def create_project(
             )
 
     project = await project_service.create(db=db, obj_in=project_in)
+
     return project
 
 

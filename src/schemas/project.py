@@ -10,6 +10,15 @@ class ProjectBase(BaseModel):
     group_id: int
 
 
+class ProjectCache(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    group_id: int
+    created_at: datetime
+    updated_at: datetime
+
+
 # Схема для создания проекта
 class ProjectCreate(ProjectBase):
     pass

@@ -4,7 +4,7 @@ from jose import JWTError, jwt
 from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.security import create_access_token, verify_password
+from src.validator.security import create_access_token
 from src.core.config import settings
 from src.db.session import get_db
 from src.schemas.token import Token, TokenPayload

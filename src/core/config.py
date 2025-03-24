@@ -15,13 +15,13 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
-    #
-    # # Redis
-    # REDIS_HOST: str
-    # REDIS_PORT: str
-    #
-    # # Kafka
-    # KAFKA_BOOTSTRAP_SERVERS: str
+
+    # Redis
+    REDIS_HOST: str
+    REDIS_PORT: str
+
+    # Kafka
+    KAFKA_BOOTSTRAP_SERVERS: str
 
     # Настройка для Pydantic v2
     model_config = SettingsConfigDict(

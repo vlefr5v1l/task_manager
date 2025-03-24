@@ -19,47 +19,47 @@ services:
     networks:
       - backend
 
-#  redis:
-#    image: redis:7-alpine
-#    container_name: task_management_redis
-#    ports:
-#      - "${REDIS_PORT:-6379}:6379"
-#    volumes:
-#      - redis_data:/data
-#    healthcheck:
-#      test: ["CMD", "redis-cli", "ping"]
-#      interval: 5s
-#      timeout: 5s
-#      retries: 5
-#    restart: always
-#    networks:
-#      - backend
+  redis:
+    image: redis:7-alpine
+    container_name: task_management_redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+    networks:
+      - backend
 
-#  zookeeper:
-#    image: bitnami/zookeeper:latest
-#    container_name: task_management_zookeeper
-#    ports:
-#      - "2181:2181"
-#    environment:
-#      - ALLOW_ANONYMOUS_LOGIN=yes
-#    networks:
-#      - backend
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: task_management_zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - backend
 
-#  kafka:
-#    image: bitnami/kafka:latest
-#    container_name: task_management_kafka
-#    ports:
-#      - "9092:9092"
-#    environment:
-#      - KAFKA_BROKER_ID=1
-#      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
-#      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
-#      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-#      - ALLOW_PLAINTEXT_LISTENER=yes
-#    depends_on:
-#      - zookeeper
-#    networks:
-#      - backend
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: task_management_kafka
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+    networks:
+      - backend
 
   app:
     build: .
@@ -73,33 +73,33 @@ services:
       - .env.example
     environment:
       - POSTGRES_SERVER=postgres
-#      - REDIS_HOST=redis
-#      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - REDIS_HOST=redis
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
       - postgres
-#      - redis
-#      - kafka
+      - redis
+      - kafka
     networks:
       - backend
 
-#  worker:
-#    build: .
-#    container_name: task_management_worker
-#    command: celery -A src.worker.celery_app worker --loglevel=info
-#    volumes:
-#      - .:/app
-#    env_file:
-#      - .env.example
-#    environment:
-#      - POSTGRES_SERVER=postgres
-##      - REDIS_HOST=redis
-##      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-#    depends_on:
-#      - postgres
-##      - redis
-##      - kafka
-#    networks:
-#      - backend
+  worker:
+    build: .
+    container_name: task_management_worker
+    command: celery -A src.worker.celery_app worker --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env.example
+    environment:
+      - POSTGRES_SERVER=postgres
+      - REDIS_HOST=redis
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    networks:
+      - backend
 
   pgadmin:
     image: dpage/pgadmin4
