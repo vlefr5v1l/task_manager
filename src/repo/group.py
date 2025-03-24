@@ -57,9 +57,7 @@ async def create_group_member_in_db(db: AsyncSession, group_member: GroupMember)
 async def delete_group_member_from_db(db: AsyncSession, group_id: int, user_id: int) -> bool:
     """Удаляет пользователя из группы"""
     result = await db.execute(
-        delete(GroupMember).where(
-            (GroupMember.group_id == group_id) & (GroupMember.user_id == user_id)
-        )
+        delete(GroupMember).where((GroupMember.group_id == group_id) & (GroupMember.user_id == user_id))
     )
     await db.commit()
     return result.rowcount > 0
@@ -88,9 +86,7 @@ async def get_members_by_group_id(db: AsyncSession, group_id: int) -> List[Group
 async def get_group_member(db: AsyncSession, group_id: int, user_id: int) -> Optional[GroupMember]:
     """Получает запись о членстве в группе"""
     result = await db.execute(
-        select(GroupMember).where(
-            (GroupMember.group_id == group_id) & (GroupMember.user_id == user_id)
-        )
+        select(GroupMember).where((GroupMember.group_id == group_id) & (GroupMember.user_id == user_id))
     )
     return result.scalars().first()
 
@@ -98,8 +94,6 @@ async def get_group_member(db: AsyncSession, group_id: int, user_id: int) -> Opt
 async def get_member_role(db: AsyncSession, group_id: int, user_id: int) -> Optional[GroupRole]:
     """Получает роль пользователя в группе"""
     result = await db.execute(
-        select(GroupMember.role).where(
-            (GroupMember.group_id == group_id) & (GroupMember.user_id == user_id)
-        )
+        select(GroupMember.role).where((GroupMember.group_id == group_id) & (GroupMember.user_id == user_id))
     )
     return result.scalars().first()

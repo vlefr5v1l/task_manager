@@ -7,10 +7,12 @@ from datetime import datetime
 from src.models.task import Task, Comment, TaskStatus
 from src.models.user import User
 
+
 async def get_task_by_id(db: AsyncSession, id: int) -> Optional[Task]:
     """Получает задачу по идентификатору"""
     result = await db.execute(select(Task).where(Task.id == id))
     return result.scalars().first()
+
 
 async def get_tasks_with_filters(
     db: AsyncSession,
@@ -44,11 +46,13 @@ async def get_tasks_with_filters(
     result = await db.execute(query)
     return result.scalars().all()
 
+
 async def create_task_in_db(db: AsyncSession, task: Task) -> None:
     """Создает задачу в базе данных"""
     db.add(task)
     await db.commit()
     await db.refresh(task)
+
 
 async def update_task_in_db(db: AsyncSession, task: Task) -> None:
     """Обновляет задачу в базе данных"""
@@ -56,16 +60,19 @@ async def update_task_in_db(db: AsyncSession, task: Task) -> None:
     await db.commit()
     await db.refresh(task)
 
+
 async def delete_task_from_db(db: AsyncSession, id: int) -> bool:
     """Удаляет задачу из базы данных"""
     result = await db.execute(delete(Task).where(Task.id == id))
     await db.commit()
     return result.rowcount > 0
 
+
 async def get_user_by_id(db: AsyncSession, id: int) -> Optional[User]:
     """Получает пользователя по идентификатору"""
     result = await db.execute(select(User).where(User.id == id))
     return result.scalars().first()
+
 
 # Функции для работы с комментариями
 async def create_comment_in_db(db: AsyncSession, comment: Comment) -> None:
@@ -74,12 +81,12 @@ async def create_comment_in_db(db: AsyncSession, comment: Comment) -> None:
     await db.commit()
     await db.refresh(comment)
 
+
 async def get_comments_by_task_id(db: AsyncSession, task_id: int) -> List[Comment]:
     """Получает комментарии к задаче"""
-    result = await db.execute(
-        select(Comment).where(Comment.task_id == task_id).order_by(Comment.created_at)
-    )
+    result = await db.execute(select(Comment).where(Comment.task_id == task_id).order_by(Comment.created_at))
     return result.scalars().all()
+
 
 async def delete_comment_from_db(db: AsyncSession, comment_id: int) -> bool:
     """Удаляет комментарий из базы данных"""

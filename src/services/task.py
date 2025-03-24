@@ -20,10 +20,10 @@ async def get(db: AsyncSession, id: int) -> Optional[Task]:
 
 
 async def get_multi(
-        db: AsyncSession,
-        skip: int = 0,
-        limit: int = 100,
-        filters: Optional[Dict[str, Any]] = None,
+    db: AsyncSession,
+    skip: int = 0,
+    limit: int = 100,
+    filters: Optional[Dict[str, Any]] = None,
 ) -> List[Task]:
     return await task_repo.get_tasks_with_filters(db, skip, limit, filters)
 

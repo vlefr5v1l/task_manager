@@ -109,11 +109,7 @@ async def get_by_group(db: AsyncSession, group_id: int, skip: int = 0, limit: in
 
 async def create(db: AsyncSession, *, obj_in: ProjectCreate) -> Project:
     # Создаем объект модели
-    db_obj = Project(
-        name=obj_in.name,
-        description=obj_in.description,
-        group_id=obj_in.group_id
-    )
+    db_obj = Project(name=obj_in.name, description=obj_in.description, group_id=obj_in.group_id)
 
     # Сохраняем в базу данных через репозиторий
     await project_repo.create_project_in_db(db, db_obj)

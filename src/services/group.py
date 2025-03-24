@@ -52,11 +52,11 @@ async def delete(db: AsyncSession, *, id: int) -> bool:
 
 # Функции для управления членами группы
 async def add_user_to_group(
-        db: AsyncSession,
-        *,
-        group_id: int,
-        user_id: int,
-        role: GroupRole = GroupRole.DEVELOPER,
+    db: AsyncSession,
+    *,
+    group_id: int,
+    user_id: int,
+    role: GroupRole = GroupRole.DEVELOPER,
 ) -> GroupMember:
     """Добавляет пользователя в группу"""
     # Создаем объект членства в группе
@@ -73,9 +73,7 @@ async def remove_user_from_group(db: AsyncSession, *, group_id: int, user_id: in
     return await group_repo.delete_group_member_from_db(db, group_id, user_id)
 
 
-async def update_user_role(
-        db: AsyncSession, *, group_id: int, user_id: int, role: GroupRole
-) -> Optional[GroupMember]:
+async def update_user_role(db: AsyncSession, *, group_id: int, user_id: int, role: GroupRole) -> Optional[GroupMember]:
     """Обновляет роль пользователя в группе"""
     return await group_repo.update_member_role_in_db(db, group_id, user_id, role)
 
