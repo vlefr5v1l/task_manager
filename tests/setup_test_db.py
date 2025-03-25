@@ -20,9 +20,7 @@ async def setup_test_db():
     try:
         # Проверяем существование тестовой базы
         async with engine.connect() as conn:
-            result = await conn.execute(
-                text(f"SELECT 1 FROM pg_database WHERE datname = '{TEST_DB_NAME}'")
-            )
+            result = await conn.execute(text(f"SELECT 1 FROM pg_database WHERE datname = '{TEST_DB_NAME}'"))
             db_exists = result.scalar_one_or_none()
 
             # Если база не существует, создаем её

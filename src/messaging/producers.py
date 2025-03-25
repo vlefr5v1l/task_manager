@@ -10,21 +10,17 @@ from src.core.config import settings
 logger = logging.getLogger(__name__)
 
 # Список топиков, которые нужно создать
-KAFKA_TOPICS = [
-    "task_events",
-    "notification_events"
-]
+KAFKA_TOPICS = ["task_events", "notification_events"]
 
 producer = None
+
 
 async def create_topics():
     """
     Создает необходимые топики в Kafka, если они не существуют
     """
     try:
-        admin_client = AIOKafkaAdminClient(
-            bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS
-        )
+        admin_client = AIOKafkaAdminClient(bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS)
         await admin_client.start()
 
         # Получаем список существующих топиков
@@ -36,11 +32,7 @@ async def create_topics():
         for topic in KAFKA_TOPICS:
             if topic not in existing_topics:
                 topics_to_create.append(
-                    NewTopic(
-                        name=topic,
-                        num_partitions=1,
-                        replication_factor=1  # Для одного брокера
-                    )
+                    NewTopic(name=topic, num_partitions=1, replication_factor=1)  # Для одного брокера
                 )
 
         if topics_to_create:
@@ -55,6 +47,7 @@ async def create_topics():
     finally:
         await admin_client.close()
 
+
 async def get_kafka_producer():
     """
     Возвращает инстанс Kafka-продюсера или создает новый, если его нет
@@ -62,11 +55,11 @@ async def get_kafka_producer():
     global producer
     if producer is None:
         producer = AIOKafkaProducer(
-            bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS,
-            value_serializer=lambda v: json.dumps(v).encode("utf-8")
+            bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS, value_serializer=lambda v: json.dumps(v).encode("utf-8")
         )
         await producer.start()
     return producer
+
 
 async def close_kafka_producer():
     """
@@ -76,6 +69,7 @@ async def close_kafka_producer():
     if producer is not None:
         await producer.stop()
         producer = None
+
 
 async def send_event(topic: str, event_type: str, data: Dict[str, Any]):
     """
