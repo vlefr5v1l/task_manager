@@ -19,9 +19,8 @@ def send_notification(user_email, subject, message):
         logger.info(f"Email content: {message}")
         return
 
-    # В реальной среде можно настроить SMTP
     try:
-        # Настройка SMTP-клиента (замените на реальные данные)
+        # Настройка SMTP-клиента
         # smtp_server = "smtp.example.com"
         # smtp_port = 587
         # smtp_username = "your_username"

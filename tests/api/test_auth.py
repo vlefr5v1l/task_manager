@@ -12,7 +12,7 @@ async def test_register_user(client: TestClient, db_session: AsyncSession):
         "username": random_string(),
         "email": random_email(),
         "password": "testpassword",
-        "full_name": "Test User",
+        "full_name": "Test User"
     }
 
     response = client.post("/api/v1/auth/register", json=user_data)
@@ -30,7 +30,10 @@ async def test_login_user(client: TestClient, db_session: AsyncSession):
     password = "testpassword"
     user = await create_test_user(db_session, password=password)
 
-    login_data = {"username": user.email, "password": password}
+    login_data = {
+        "username": user.email,
+        "password": password
+    }
 
     response = client.post("/api/v1/auth/login", data=login_data)
     assert response.status_code == 200
@@ -45,7 +48,10 @@ async def test_login_incorrect_password(client: TestClient, db_session: AsyncSes
     """Тестирует авторизацию с неправильным паролем."""
     user = await create_test_user(db_session, password="testpassword")
 
-    login_data = {"username": user.email, "password": "wrongpassword"}
+    login_data = {
+        "username": user.email,
+        "password": "wrongpassword"
+    }
 
     response = client.post("/api/v1/auth/login", data=login_data)
     assert response.status_code == 401

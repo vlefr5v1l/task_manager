@@ -17,7 +17,7 @@ docker-compose up -d
 
 # Применяем миграции
 echo "Waiting for PostgreSQL to start..."
-sleep 5
+sleep 3
 docker-compose exec app alembic upgrade head
 
 echo "============================================="

@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     REDIS_PORT: str
 
     # Kafka
+    TESTING: bool = False
     KAFKA_BOOTSTRAP_SERVERS: str
 
     # Настройка для Pydantic v2

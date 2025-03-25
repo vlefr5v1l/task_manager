@@ -9,7 +9,7 @@ from src.core.config import settings
 from src.db.session import engine
 from src.models.task import Task, TaskStatus
 from src.models.user import User
-from src.utils.notification_service import send_notification
+from src.utils.service_notification import send_notification
 
 logger = logging.getLogger(__name__)
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
