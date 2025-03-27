@@ -43,27 +43,8 @@ def event_loop() -> Generator:
 @pytest.fixture(scope="session")
 async def test_db():
     """
-    Создает тестовую БД и таблицы, после тестов удаляет их.
+    Создает тестовые таблицы, после тестов удаляет их.
     """
-    # Подключаемся к PostgreSQL и создаем тестовую БД если её нет
-    postgres_url = f"postgresql://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_SERVER}:{settings.POSTGRES_PORT}/postgres"
-
-    # Проверяем, существует ли база данных
-    try:
-        # Подключаемся к основной БД postgres
-        conn = await asyncpg.connect(postgres_url)
-
-        # Проверяем существование тестовой БД
-        db_exists = await conn.fetchval("SELECT 1 FROM pg_database WHERE datname = $1", "test_task_management")
-
-        # Если БД не существует, создаем её
-        if not db_exists:
-            await conn.execute("CREATE DATABASE test_task_management")
-
-        await conn.close()
-    except Exception as e:
-        pytest.fail(f"Failed to create test database: {e}")
-
     # Создаем таблицы
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)

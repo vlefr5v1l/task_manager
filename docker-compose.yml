@@ -117,19 +117,23 @@ services:
 
   tests:
     build: .
-    command: >
-      bash -c "
-        python -m tests.setup_test_db &&
-        pytest -xvs
+    command: bash -c "
+      echo 'Waiting for PostgreSQL...' &&
+      while ! nc -z postgres 5432; do sleep 0.1; done &&
+      echo 'PostgreSQL started' &&
+      PGPASSWORD=${POSTGRES_PASSWORD} psql -h postgres -U ${POSTGRES_USER} -c 'CREATE DATABASE test_task_management;' || true &&
+      POSTGRES_DB=test_task_management alembic upgrade head &&
+      python -m tests.setup_test_db &&
+      pytest -xvs
       "
-    environment:
-      - POSTGRES_SERVER=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=test_task_management
     depends_on:
       postgres:
         condition: service_healthy
+    env_file:
+      - .env.example
+    environment:
+      - POSTGRES_SERVER=postgres
+      - POSTGRES_DB=test_task_management
     networks:
       - backend
 
