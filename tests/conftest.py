@@ -18,8 +18,14 @@ from src.core.config import settings
 TEST_DATABASE_URL = f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_SERVER}:{settings.POSTGRES_PORT}/test_task_management"
 
 # Создаем тестовый движок
-test_engine = create_async_engine(TEST_DATABASE_URL, echo=True, future=True, poolclass=NullPool,)
+test_engine = create_async_engine(
+    TEST_DATABASE_URL,
+    echo=True,
+    future=True,
+    poolclass=NullPool,
+)
 TestingSessionLocal = sessionmaker(test_engine, class_=AsyncSession)
+
 
 # Переопределяем зависимость для получения БД
 async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -76,9 +82,10 @@ async def test_db():
     # Применяем миграции (если используете Alembic)
     try:
         import subprocess
-        subprocess.run(["alembic", "upgrade", "head"],
-                       env=dict(os.environ, POSTGRES_DB="test_task_management"),
-                       check=True)
+
+        subprocess.run(
+            ["alembic", "upgrade", "head"], env=dict(os.environ, POSTGRES_DB="test_task_management"), check=True
+        )
         print("Migrations applied successfully")
     except Exception as e:
         print(f"Warning: Failed to apply migrations: {e}")
