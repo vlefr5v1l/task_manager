@@ -1,18 +1,24 @@
 import asyncio
 import os
-
 import pytest
-from typing import Generator, AsyncGenerator
-from fastapi.testclient import TestClient
+from typing import AsyncGenerator, Generator
+
+import httpx
+from httpx import AsyncClient, ASGITransport
+from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 import asyncpg
+import nest_asyncio
 
 from src.main import app
 from src.db.base import Base
 from src.db.session import get_db
 from src.core.config import settings
+
+# Применяем патч для вложенных циклов событий
+nest_asyncio.apply()
 
 # Тестовая БД
 TEST_DATABASE_URL = f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_SERVER}:{settings.POSTGRES_PORT}/test_task_management"
@@ -24,13 +30,16 @@ test_engine = create_async_engine(
     future=True,
     poolclass=NullPool,
 )
-TestingSessionLocal = sessionmaker(test_engine, class_=AsyncSession)
+TestingSessionLocal = sessionmaker(test_engine, class_=AsyncSession, expire_on_commit=False)
 
 
 # Переопределяем зависимость для получения БД
 async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
     async with TestingSessionLocal() as session:
-        yield session
+        try:
+            yield session
+        finally:
+            await session.close()
 
 
 # Устанавливаем тестовую зависимость
@@ -38,20 +47,19 @@ app.dependency_overrides[get_db] = override_get_db
 
 
 @pytest.fixture(scope="session")
-def event_loop() -> Generator:
-    """
-    Создает экземпляр цикла событий для каждой тестовой сессии.
-    """
-    loop = asyncio.get_event_loop_policy().new_event_loop()
+def event_loop():
+    """Создаем новый цикл событий для тестовой сессии."""
+    policy = asyncio.get_event_loop_policy()
+    loop = policy.new_event_loop()
+    asyncio.set_event_loop(loop)
+    nest_asyncio.apply(loop)  # Применяем патч к конкретному циклу событий
     yield loop
     loop.close()
 
 
 @pytest.fixture(scope="session")
 async def test_db():
-    """
-    Создает тестовую БД и таблицы, после тестов удаляет их.
-    """
+    """Создает тестовую БД и таблицы, после тестов удаляет их."""
     # Подключаемся к PostgreSQL и создаем тестовую БД если её нет
     postgres_url = f"postgresql://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_SERVER}:{settings.POSTGRES_PORT}/postgres"
 
@@ -82,7 +90,6 @@ async def test_db():
     # Применяем миграции (если используете Alembic)
     try:
         import subprocess
-
         subprocess.run(
             ["alembic", "upgrade", "head"], env=dict(os.environ, POSTGRES_DB="test_task_management"), check=True
         )
@@ -102,20 +109,22 @@ async def test_db():
         await conn.run_sync(Base.metadata.drop_all)
 
 
-@pytest.fixture(scope="function")
-async def db_session() -> AsyncGenerator[AsyncSession, None]:
-    """
-    Возвращает сессию БД для каждого теста и делает откат изменений после теста.
-    """
+@pytest.fixture
+async def db_session(test_db) -> AsyncGenerator[AsyncSession, None]:
+    """Возвращает сессию БД для каждого теста и делает откат изменений после теста."""
     async with TestingSessionLocal() as session:
-        yield session
-        await session.rollback()
+        try:
+            yield session
+        finally:
+            await session.rollback()
+            # Явно закрываем сессию
+            await session.close()
 
 
-@pytest.fixture(scope="function")
-def client(test_db) -> Generator:
-    """
-    Создает тестовый клиент для запросов к API.
-    """
-    with TestClient(app) as c:
-        yield c
+@pytest.fixture
+async def async_client(test_db) -> AsyncGenerator[httpx.AsyncClient, None]:
+    """Создает асинхронный клиент для тестирования API."""
+    # Используем текущий цикл событий
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client
