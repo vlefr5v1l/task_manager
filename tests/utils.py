@@ -20,7 +20,7 @@ def random_email() -> str:
 
 
 async def create_test_user(
-        db: AsyncSession, role: UserRole = UserRole.DEVELOPER, password: str = "testpassword"
+    db: AsyncSession, role: UserRole = UserRole.DEVELOPER, password: str = "testpassword"
 ) -> User:
     """Создает тестового пользователя в БД."""
     user = User(

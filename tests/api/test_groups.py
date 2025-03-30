@@ -12,10 +12,7 @@ async def test_create_group_as_admin(async_client: httpx.AsyncClient, db_session
     admin_user = await create_test_user(db_session, role=UserRole.ADMIN)
     headers = await get_async_auth_headers(async_client, admin_user.email, "testpassword")
 
-    group_data = {
-        "name": f"Test Group {random_string(5)}",
-        "description": "Test group description"
-    }
+    group_data = {"name": f"Test Group {random_string(5)}", "description": "Test group description"}
 
     response = await async_client.post("/api/v1/groups/", json=group_data, headers=headers)
     assert response.status_code == 201
@@ -31,10 +28,7 @@ async def test_create_group_as_team_lead(async_client: httpx.AsyncClient, db_ses
     team_lead = await create_test_user(db_session, role=UserRole.TEAM_LEAD)
     headers = await get_async_auth_headers(async_client, team_lead.email, "testpassword")
 
-    group_data = {
-        "name": f"Lead Group {random_string(5)}",
-        "description": "Team lead's group"
-    }
+    group_data = {"name": f"Lead Group {random_string(5)}", "description": "Team lead's group"}
 
     response = await async_client.post("/api/v1/groups/", json=group_data, headers=headers)
     assert response.status_code == 201
@@ -46,10 +40,7 @@ async def test_create_group_as_developer(async_client: httpx.AsyncClient, db_ses
     dev_user = await create_test_user(db_session, role=UserRole.DEVELOPER)
     headers = await get_async_auth_headers(async_client, dev_user.email, "testpassword")
 
-    group_data = {
-        "name": f"Dev Group {random_string(5)}",
-        "description": "Developer's group"
-    }
+    group_data = {"name": f"Dev Group {random_string(5)}", "description": "Developer's group"}
 
     response = await async_client.post("/api/v1/groups/", json=group_data, headers=headers)
     assert response.status_code == 403

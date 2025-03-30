@@ -20,17 +20,10 @@ async def create_test_group(db: AsyncSession, name: str = None) -> Group:
 
 
 async def add_user_to_group(
-        db: AsyncSession,
-        user_id: int,
-        group_id: int,
-        role: GroupRole = GroupRole.DEVELOPER
+    db: AsyncSession, user_id: int, group_id: int, role: GroupRole = GroupRole.DEVELOPER
 ) -> GroupMember:
     """Добавляет пользователя в группу с указанной ролью."""
-    group_member = GroupMember(
-        user_id=user_id,
-        group_id=group_id,
-        role=role
-    )
+    group_member = GroupMember(user_id=user_id, group_id=group_id, role=role)
     db.add(group_member)
     await db.commit()
     await db.refresh(group_member)
@@ -54,7 +47,7 @@ async def test_create_project(async_client: httpx.AsyncClient, db_session: Async
     project_data = {
         "name": f"Test Project {random_string(5)}",
         "description": "Test project description",
-        "group_id": group.id
+        "group_id": group.id,
     }
 
     response = await async_client.post("/api/v1/projects/", json=project_data, headers=headers)

@@ -90,6 +90,7 @@ async def test_db():
     # Применяем миграции (если используете Alembic)
     try:
         import subprocess
+
         subprocess.run(
             ["alembic", "upgrade", "head"], env=dict(os.environ, POSTGRES_DB="test_task_management"), check=True
         )
