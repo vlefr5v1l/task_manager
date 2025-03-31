@@ -1,11 +1,11 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.core.config import settings
 from src.api.v1.router import api_router
-import asyncio
+from src.core.config import settings
 from src.messaging.consumers import start_consumers
 from src.messaging.producers import close_kafka_producer
 

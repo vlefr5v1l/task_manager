@@ -1,21 +1,20 @@
 import asyncio
 import os
-import pytest
-from typing import AsyncGenerator, Generator
+from typing import AsyncGenerator
 
+import asyncpg
 import httpx
+import nest_asyncio
+import pytest
 from httpx import AsyncClient, ASGITransport
-from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
-import asyncpg
-import nest_asyncio
 
-from src.main import app
+from src.core.config import settings
 from src.db.base import Base
 from src.db.session import get_db
-from src.core.config import settings
+from src.main import app
 
 # Применяем патч для вложенных циклов событий
 nest_asyncio.apply()

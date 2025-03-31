@@ -1,14 +1,13 @@
-import pytest
-import httpx
 from datetime import datetime, timezone, timedelta
+
+import httpx
+import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.user import UserRole
-from src.models.group import GroupRole
 from src.models.project import Project
 from src.models.task import TaskStatus, TaskPriority
-from tests.utils import random_string, create_test_user, get_async_auth_headers
 from tests.api.test_projects import create_test_group, add_user_to_group
+from tests.utils import random_string, create_test_user, get_async_auth_headers
 
 
 async def create_test_project(db: AsyncSession, group_id: int) -> Project:

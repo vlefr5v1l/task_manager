@@ -1,7 +1,8 @@
+import asyncio
 import random
 import string
-import asyncio
-from typing import Dict, Optional
+from typing import Dict
+
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 

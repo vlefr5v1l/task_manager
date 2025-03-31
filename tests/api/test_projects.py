@@ -1,9 +1,9 @@
-import pytest
 import httpx
+import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.user import UserRole
 from src.models.group import Group, GroupMember, GroupRole
+from src.models.user import UserRole
 from tests.utils import random_string, create_test_user, get_async_auth_headers
 
 

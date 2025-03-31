@@ -1,9 +1,10 @@
-import pytest
-import httpx
 import asyncio
+
+import httpx
+import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from tests.utils import random_string, random_email, create_test_user, get_async_auth_headers
+from tests.utils import random_string, random_email, create_test_user
 
 
 @pytest.mark.asyncio
