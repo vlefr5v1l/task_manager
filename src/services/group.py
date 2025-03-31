@@ -1,9 +1,10 @@
 from typing import List, Optional
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import src.repo.group as group_repo
 from src.models.group import Group, GroupMember, GroupRole
 from src.schemas.group import GroupCreate, GroupUpdate
-import src.repo.group as group_repo
 
 
 async def get(db: AsyncSession, id: int) -> Optional[Group]:

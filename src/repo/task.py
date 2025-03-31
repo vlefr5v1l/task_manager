@@ -1,10 +1,10 @@
 from typing import List, Optional, Dict, Any
+
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import delete, and_, or_
-from datetime import datetime
 
-from src.models.task import Task, Comment, TaskStatus
+from src.models.task import Task, Comment
 from src.models.user import User
 
 

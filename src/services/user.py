@@ -1,10 +1,11 @@
 from typing import Optional, List
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import src.repo.user as user_repo
 from src.models.user import User
 from src.schemas.user import UserCreate, UserUpdate
 from src.validator.security import get_password_hash, verify_password
-import src.repo.user as user_repo
 
 
 async def get(db: AsyncSession, id: int) -> Optional[User]:

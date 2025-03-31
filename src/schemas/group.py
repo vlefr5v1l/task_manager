@@ -1,5 +1,7 @@
-from pydantic import BaseModel, Field
 from typing import Optional, List
+
+from pydantic import BaseModel
+
 from src.models.group import GroupRole
 
 

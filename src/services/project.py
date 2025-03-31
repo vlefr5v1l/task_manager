@@ -1,12 +1,13 @@
+import logging
 from typing import List, Optional
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.cache.client import get_cache, set_cache, delete_cache, invalidate_pattern
 from src.models.project import Project
 from src.repo import project as project_repo
-from src.schemas.project import ProjectCreate, ProjectUpdate
-from src.cache.client import get_cache, set_cache, delete_cache, invalidate_pattern
 from src.schemas.project import ProjectCache
-import logging
+from src.schemas.project import ProjectCreate, ProjectUpdate
 
 logger = logging.getLogger(__name__)
 

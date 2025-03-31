@@ -1,12 +1,13 @@
-from typing import List, Optional, Dict, Any
-from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime, timezone
-
-from src.models.task import Task, Comment, TaskStatus, TaskPriority
-from src.schemas.task import TaskCreate, TaskUpdate, CommentCreate
-from src.messaging.producers import send_event
-import src.repo.task as task_repo
 import logging
+from datetime import datetime, timezone
+from typing import List, Optional, Dict, Any
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+import src.repo.task as task_repo
+from src.messaging.producers import send_event
+from src.models.task import Task, Comment, TaskStatus
+from src.schemas.task import TaskCreate, TaskUpdate, CommentCreate
 
 log = logging.getLogger(__name__)
 

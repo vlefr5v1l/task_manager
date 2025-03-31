@@ -1,10 +1,10 @@
 from typing import List, Optional
+
+from sqlalchemy import update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import update, delete
 
 from src.models.group import Group, GroupMember, GroupRole
-from src.models.user import User
 
 
 async def get_group_by_id(db: AsyncSession, id: int) -> Optional[Group]:

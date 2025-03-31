@@ -1,5 +1,7 @@
-from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List
+from typing import Optional
+
+from pydantic import BaseModel, EmailStr
+
 from src.models.user import UserRole
 
 

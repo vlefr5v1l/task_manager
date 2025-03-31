@@ -1,9 +1,9 @@
 import json
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict
+
 from aiokafka import AIOKafkaProducer
 from aiokafka.admin import AIOKafkaAdminClient, NewTopic
-import asyncio
 
 from src.core.config import settings
 
