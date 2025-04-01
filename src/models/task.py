@@ -5,6 +5,7 @@ import enum
 
 
 class TaskStatus(str, enum.Enum):
+    CLOSED = None
     NEW = "new"
     IN_PROGRESS = "in_progress"
     WAITING = "waiting"
