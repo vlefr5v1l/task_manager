@@ -28,14 +28,14 @@ async def test_get_cache_hit(mock_redis):
     key = "test-key"
     expected_data = {"id": 1, "name": "Test Data"}
 
-    # Seed the cache
     await mock_redis.set(key, expected_data)
 
-    # Act
+    await mock_redis.get(key)
+
     result = await get_cache(key)
 
     # Assert
-    assert result == expected_data
+    assert result == expected_data, f"Expected {expected_data}, got {result}"
 
 
 @pytest.mark.asyncio

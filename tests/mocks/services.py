@@ -115,7 +115,7 @@ class MockKafkaProducer:
 
     def __init__(self):
         self.sent_messages: List[Dict[str, Any]] = []
-        self.started = False
+        self.started = True
 
     async def start(self) -> None:
         """Mock start of Kafka producer"""
